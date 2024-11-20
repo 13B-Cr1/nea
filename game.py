@@ -4,7 +4,7 @@ import sys
 # Initialize pygame
 pygame.init()
 
-# Constants for screen size and grid dimensions
+# Constants for screen size and grid dimensions5
 WIDTH, HEIGHT = 600, 600
 GRID_SIZE = 20  # Size of each cell in the grid
 GRID_WIDTH = WIDTH // GRID_SIZE
