@@ -50,24 +50,14 @@ def get_starting_point(maze,ghost_home):
         x, y = random.randrange(1 ,maze_size,2), random.randrange(1,maze_size, 2)
         if (x,y) not in ghost_home:
             return x,y
-        
+         
 
-
-#if the start_x value and start_y lie within the ghost area, new values for x and y will be chosen
-
-def carve_path(maze,x,y,nx,ny):
-
-    maze[y][x]= " "
-    maze[ny][nx] = " "
-    maze[(y+ny)//2][(x+nx)//2] = " "
-
- 
 def display_maze(maze):
     for row in maze:
         print("".join(row))
 
 
-def main():
+def run_maze_generation():
     #generate maze
     maze_size = 17
     maze = create_empty_maze(maze_size)
@@ -77,4 +67,4 @@ def main():
     generate_maze(maze,start_x,start_y)
     display_maze(maze)
 
-main()
+run_maze_generation()
