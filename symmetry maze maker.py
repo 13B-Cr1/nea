@@ -28,6 +28,15 @@ def add_symmetry(maze,width,height):
             maze[y][width -x -1] = maze[y][x]
 
 
+# Tracks the connections between paths and walls
+connections = {}
+
+def add_connection(x,y,dx,dy):
+    src = (x,y)
+    dest = (x + dx, y + dy)
+    connections.setdefault(src,[]).append(dest)
+    connections.setdefault(dest,[]).append(src)
+
 """This is the recursive backtracking algorithm"""
 def carve_maze(maze,x,y,available_positions):
     directions = [(0,2),(0,-2),(2,0),(-2,0)]
@@ -38,6 +47,7 @@ def carve_maze(maze,x,y,available_positions):
         if 0 < nx < width  and 0 < ny < height and maze[ny][nx] == wall:
             maze[y + dy//2][x + dx//2] = path
             maze[ny][nx] = path # this chosen coordinates becomes part of a path
+            add_connection(x,y,dx,dy)
             available_positions.append((nx,ny))
             carve_maze(maze,nx,ny,available_positions)
 
@@ -99,11 +109,10 @@ def generate_maze():
 
     place_start_end(maze,width,height)
     if not bfs(maze,1,1):
-        print("Maze has isolated areas")
-        print_maze(maze)
-        return #Exix if the maze is not fully connected
+        print("Maze has isolated areas, regenerating...")
+        return generate_maze()
     
     add_random_obstacles(maze)
     
-
+    print_maze(maze)
 generate_maze()
