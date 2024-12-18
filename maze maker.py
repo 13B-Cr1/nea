@@ -29,7 +29,7 @@ def is_within_bounds(x,y):
 
 
 def generate_maze(maze,x,y): 
-    maze[y][x] = " "
+    maze[y][x] = "."
 
     random.shuffle(directions)
 
@@ -41,11 +41,11 @@ def generate_maze(maze,x,y):
         if is_within_bounds(nx,ny) and maze[ny][nx] == "|":
             accessible_paths = sum(
                 1 for ddx,ddy in directions
-                if is_within_bounds(nx+ddx,ny+ddy) and maze[ny+ddy][nx+ddx] == " "
+                if is_within_bounds(nx+ddx,ny+ddy) and maze[ny+ddy][nx+ddx] == "."
             )
             if accessible_paths == 1:
-                maze[ny][nx] = " "
-                maze[y + dy//2 ][x + dx//2] = " "
+                maze[ny][nx] = "."
+                maze[y + dy//2 ][x + dx//2] = "."
                 generate_maze(maze,nx,ny)
         # if 0<nx < len(maze[0]) and 0<ny<len(maze) and maze[ny][nx] == "|":
         #     maze[ny][nx] = " "
