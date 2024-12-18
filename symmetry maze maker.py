@@ -28,14 +28,53 @@ def add_symmetry(maze,width,height):
             maze[y][width -x -1] = maze[y][x]
 
 
+
+available_positions = [(1,1)] # This keeps the available positions that wre carved out
+
 # Tracks the connections between paths and walls
 connections = {}
+
+def valid(x,y):
+    return 0 < x < width and 0 < y < height
+
+# Convert 2D coordinates to 1D
+def xy_to_index(x,y):
+    return x + y * width
+
+# Get the tile at a given coordinate
+def get_tile(maze,x,y):
+    return maze[y][x] if valid(x,y) else None
+
+# Set the tile at a given coordinate
+def set_tile(maze,x,y,tile):
+    if valid(x,y):
+        maze[y][x] = tile
+
+# Check if a new wall block can fit at the given coordinates
+def add_wall_block(maze,x,y):
+    for dx in range(2):
+        for dy in range(2):
+            set_tile(maze,x + dx, y + dy, wall)
+
+
+def can_new_wall_fit(maze,x,y):
+    return all(get_tile(maze,x0,y0) == path for y0 in range(y,y + 2) for x0 in range(x,x + 2))
+
+def update_available_positions(maze):
+    available_positions = []
+    for y in range(height-1):
+        for x in range(width - 1):
+            if can_new_wall_fit(maze, x,y):
+                available_positions.append((x,y))
+
+    return available_positions
+
 
 def add_connection(x,y,dx,dy):
     src = (x,y)
     dest = (x + dx, y + dy)
-    connections.setdefault(src,[]).append(dest)
-    connections.setdefault(dest,[]).append(src)
+    connections.setdefault(src,[]).append(dest) # This adds the destination to the list of connections
+    connections.setdefault(dest,[]).append(src)# This adds the source to the list of connections
 
 """This is the recursive backtracking algorithm"""
 def carve_maze(maze,x,y,available_positions):
@@ -52,12 +91,15 @@ def carve_maze(maze,x,y,available_positions):
             carve_maze(maze,nx,ny,available_positions)
 
 
-def add_random_obstacles(maze,num_obstacles = 5):
-    for _ in range(num_obstacles):
-        x = random.randint(1,width - 2)
-        y = random.randint(1, height - 2)
-        if maze[y][x] == path:
-            maze[y][x] = wall
+# def add_random_obstacles(maze,num_obstacles = 5):
+#     available_positions = update_available_positions(maze)
+
+#     for _ in range(num_obstacles):
+#         if available_positions:
+#         x = random.randint(1,width - 2)
+#         y = random.randint(1, height - 2)
+#         if maze[y][x] == path:
+#             maze[y][x] = wall
 
 def place_start_end(maze, width, height):
     start_x = width // 2
@@ -100,7 +142,6 @@ def bfs(maze,start_x, start_y):
 def generate_maze():
     maze = initialise_maze(width,height)
     
-    available_positions = [(1,1)] # This keeps the available positions that wre carved out
 
 
     maze[1][1] = path
@@ -112,7 +153,7 @@ def generate_maze():
         print("Maze has isolated areas, regenerating...")
         return generate_maze()
     
-    add_random_obstacles(maze)
+    # add_random_obstacles(maze)
     
     print_maze(maze)
 generate_maze()
