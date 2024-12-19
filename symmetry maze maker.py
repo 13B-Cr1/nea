@@ -29,17 +29,13 @@ def add_symmetry(maze,width,height):
 
 
 
-available_positions = [(1,1)] # This keeps the available positions that wre carved out
+available_positions = [(1,1)] # This stores all of the valid coordinates that can be used to add a new wall block
 
-# Tracks the connections between paths and walls
-connections = {}
+
+
 
 def valid(x,y):
     return 0 < x < width and 0 < y < height
-
-# Convert 2D coordinates to 1D
-def xy_to_index(x,y):
-    return x + y * width
 
 # Get the tile at a given coordinate
 def get_tile(maze,x,y):
@@ -56,9 +52,12 @@ def add_wall_block(maze,x,y):
         for dy in range(2):
             set_tile(maze,x + dx, y + dy, wall)
 
-
+#  """This checks if the coordinates for the new wall block are valid
+#     the wall fit has to return true so that a new wall block can be added.
+    
+#     This only returns if all coordinates is a path"""
 def can_new_wall_fit(maze,x,y):
-    return all(get_tile(maze,x0,y0) == path for y0 in range(y,y + 2) for x0 in range(x,x + 2))
+    return all(get_tile(maze,x0,y0) == path for y0 in range(y,y + 2) for x0 in range(x,x + 2)) 
 
 def update_available_positions(maze):
     available_positions = []
@@ -69,6 +68,8 @@ def update_available_positions(maze):
 
     return available_positions
 
+# Tracks the connections between paths and walls
+connections = {}
 
 def add_connection(x,y,dx,dy):
     src = (x,y)
