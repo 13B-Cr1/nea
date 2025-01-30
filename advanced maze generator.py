@@ -151,4 +151,4 @@ if __name__ == "__main__":
 
     # Print the generated maze
     for line in str(maze).splitlines():
-        print(line[:14] + line[:14][::-1])
+        print(line[:16] + line[:16][::-1])
