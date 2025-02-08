@@ -31,14 +31,14 @@ class Maze:
 
         return map_list
     
-    def __str__(self):
+    def maze_to_string(self):
         """Returns the maze as a string."""
         
         return "\n".join("".join(self.map_layout[y * self.width: (y + 1) * self.width]) for y in range(self.height))
 
     """""
     As the maze is represented as a single string, we need a way to each tile using indexing. However, the parameters
-    we will use will be (x,y) coordinates so we need a converter 
+    we will use will be (x,y) coordinates so we need a converter from coordinates to an index 
     """""
     def xy_to_index_converter(self,x,y):
         index = x + (y*self.width)
@@ -149,7 +149,7 @@ class Maze:
         if extend:
             directions = [(0, -1), (0, 1), (1, 0), (-1, 0)]
             dx, dy = random.choice(directions)
-            max_blocks = 4 
+            max_blocks =  4 + (4 if random.random() <= 0.35 else 0)
             for step in range(max_blocks):
                 x0, y0 = x + dx * step, y + dy * step
                 if (x0, y0) not in self.available_positions:
@@ -157,12 +157,25 @@ class Maze:
                 if not all(self.get_tile(x0 + i, y0 + j) == '|' for i in range(2) for j in range(2)):
                     self.add_wall_block(x0, y0)
                     count += 1 + self.expand_wall(x0, y0)
-                if step >= 4:
+                if step >= 4 and random.random() <= 0.35 :
                     dx, dy = -dy, dx
 
         return True
 
-
+    def maze_to_2d_array(self):
+        grid = []
+        maze = self.maze_to_string()
+        for line in maze.splitlines():
+            word = line[:16] + line[:16][::-1]
+            row = []
+            for char in word:
+                if char == "|":
+                    char = 1
+                else:
+                    char = 0
+                row.append(char)
+            grid.append(row)
+        return grid
 
 maze = Maze(16,  24,  """
     ||||||||||||||||
@@ -194,9 +207,15 @@ maze = Maze(16,  24,  """
 while maze.add_wall_obstacle(extend=True):
     pass
 
+grid = maze.maze_to_2d_array()
+print(grid)
 # Print the generated maze
-for line in str(maze).splitlines():
-    print(line[:16] + line[:16][::-1])
+# grid = []
+# for line in str(maze).splitlines():
+
+        
+for row in grid:
+    print(row)
 
 
 
@@ -207,8 +226,3 @@ for line in str(maze).splitlines():
     
 
    
-                
-
-
-
-    
