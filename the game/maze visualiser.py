@@ -70,15 +70,22 @@ def put_Pacman_on_screen():
     if direction == 2:
         screen.blit(pygame.transform.rotate(PACMAN_IMAGES[counter // 5], 90), (player_x,player_y))
     if direction == 3:
-        screen.blit(pygame.transform.rotate((PACMAN_IMAGES[counter // 5],270), (player_x,player_y)))
+        screen.blit(pygame.transform.rotate(PACMAN_IMAGES[counter // 5],270), (player_x,player_y))
     
-
+make_ghost_home()
+place_dots()
 run = True
 while run:
     timer.tick(fps)
-    make_ghost_home()
-    place_dots()
-    put_Pacman_on_screen()
+    if counter < 19:
+        counter += 1
+    else:
+        counter = 0
+
+
+    screen.fill(BLACK)
+    
+    
     for y in range(GRID_HEIGHT):
         for x in range(GRID_WIDTH):
             rect = pygame.Rect(x*TILE_SIZE,y*TILE_SIZE, TILE_SIZE, TILE_SIZE)
@@ -92,6 +99,7 @@ while run:
                 pygame.draw.rect(screen, BLACK, rect)
             if GAME_MAP[y][x] == 5:
                 pygame.draw.rect(screen, WHITE, rect)
+    put_Pacman_on_screen()
     pygame.display.flip()
 
     # options to close the game
@@ -101,4 +109,14 @@ while run:
         elif event.type == pygame.KEYDOWN:
             if event.key == pygame.K_ESCAPE: # this closes the program when I press the esc
                 run = False
+            if event.key == pygame.K_RIGHT :
+                direction = 0
+            if event.key == pygame.K_LEFT :
+                direction = 1
+            if event.key == pygame.K_UP :
+                direction = 2
+            if event.key == pygame.K_DOWN :
+                direction = 3
+                
+
 pygame.quit()
