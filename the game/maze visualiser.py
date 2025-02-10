@@ -14,7 +14,7 @@ GAME_MAP = [[1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1
 GRID_WIDTH = 32
 GRID_HEIGHT = 24
 
-# Calculate screen size
+# Calculate screen size\
 TILE_SIZE = 30
 SCREEN_WIDTH = GRID_WIDTH * TILE_SIZE * 1
 SCREEN_HEIGHT = GRID_HEIGHT * TILE_SIZE * 1
@@ -41,8 +41,17 @@ def place_dots():
                 elif random.random() < 0.05: # This adds power pellets
                     GAME_MAP[y][x] = 3
 
+def make_ghost_home():
+    for y in range(10,13):
+        for x in range(11,21):
+            GAME_MAP[y][x] = 4
+
+    for x in range(14,18):
+        GAME_MAP[9][x] = 5
+    
 run = True
 while run:
+    make_ghost_home()
     place_dots()
     for y in range(GRID_HEIGHT):
         for x in range(GRID_WIDTH):
@@ -52,8 +61,11 @@ while run:
             if GAME_MAP[y][x] == 2:
                 pygame.draw.circle(screen, WHITE , (x * TILE_SIZE + TILE_SIZE // 2, y * TILE_SIZE + TILE_SIZE // 2), 4)
             if GAME_MAP[y][x] == 3:
-                pygame.draw.circle(screen, BLUE, (x * TILE_SIZE + TILE_SIZE // 2, y * TILE_SIZE + TILE_SIZE // 2), 4)   
-        
+                pygame.draw.circle(screen, BLUE, (x * TILE_SIZE + TILE_SIZE // 2, y * TILE_SIZE + TILE_SIZE // 2), 15)   
+            if GAME_MAP[y][x] == 4:
+                pygame.draw.rect(screen, BLACK, rect)
+            if GAME_MAP[y][x] == 5:
+                pygame.draw.rect(screen, WHITE, rect)
     pygame.display.flip()
 
     # options to close the game
