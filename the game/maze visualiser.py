@@ -43,8 +43,8 @@ for i in range(1,5):
     PACMAN_IMAGES.append(pygame.transform.scale(pygame.image.load(f"assets/{i}.png"),(25,25)))
 
 # Pacman position
-player_x = 15 * TILE_SIZE
-player_y = 17 * TILE_SIZE
+player_x = (30//TILE_SIZE) * TILE_SIZE + TILE_SIZE // 2
+player_y = (30//TILE_SIZE) * TILE_SIZE + TILE_SIZE // 2
 # direction = 0
 turns = [False, False,False,False]
 # direction_command = 0
@@ -158,15 +158,28 @@ class Pacman:
         self.counter = 0
 
     def draw(self, surface):
-        if self.direction == 0:
+        if self.direction == 0: # right direction
             surface.blit(self.images[self.counter // 5], (self.x, self.y))
         elif self.direction == 1:
-            surface.blit(pygame.transform.flip(self.images[self.counter // 5], True, False), (self.x, self.y))
+            surface.blit(pygame.transform.flip(self.images[self.counter // 5], True, False), (self.x, self.y)) # left
         elif self.direction == 2:
-            surface.blit(pygame.transform.rotate(self.images[self.counter // 5], 90), (self.x, self.y))
+            surface.blit(pygame.transform.rotate(self.images[self.counter // 5], 90), (self.x, self.y)) # up
         elif self.direction == 3:
-            surface.blit(pygame.transform.rotate(self.images[self.counter // 5], 270), (self.x, self.y))
-
+            surface.blit(pygame.transform.rotate(self.images[self.counter // 5], 270), (self.x, self.y)) # down
+    
+    # def move(self,direction):
+    #     self.direction = direction
+    #     if self.direction == 0:  # Moving right
+    #         self.x += self.speed
+    #     elif self.direction == 1:  # Moving left
+    #         self.x -= self.speed
+    #     elif self.direction == 2:  # Moving up
+    #         self.y -= self.speed
+    #     elif self.direction == 3:  # Moving down
+    #         self.y += self.speed
+        
+    #     self.x = self.x//TILE_SIZE * TILE_SIZE +TILE_SIZE// 2 
+    #     self.y = self.y//TILE_SIZE * TILE_SIZE +TILE_SIZE// 2 
     def move(self, direction):
         # Update direction and position based on player input
         self.direction = direction
@@ -185,20 +198,20 @@ class Pacman:
         if self.counter > 19:
             self.counter = 0
 # Draws the board using solid rectangles    
-def draw_board():
-    for y in range(GRID_HEIGHT):
-        for x in range(GRID_WIDTH):
-            rect = pygame.Rect(x*TILE_SIZE,y*TILE_SIZE, TILE_SIZE, TILE_SIZE)
-            if GAME_MAP[y][x] == 1:
-                pygame.draw.rect(screen, YELLOW, rect)
-            if GAME_MAP[y][x] == 2:
-                pygame.draw.circle(screen, WHITE , (x * TILE_SIZE + TILE_SIZE // 2, y * TILE_SIZE + TILE_SIZE // 2), 4)
-            if GAME_MAP[y][x] == 3 and not flicker:
-                pygame.draw.circle(screen, CYAN, (x * TILE_SIZE + TILE_SIZE // 2, y * TILE_SIZE + TILE_SIZE // 2), 8)   
-            if GAME_MAP[y][x] == 4:
-                pygame.draw.rect(screen, BLACK, rect)
-            if GAME_MAP[y][x] == 5:
-                pygame.draw.rect(screen, WHITE, rect)
+# def draw_board():
+#     for y in range(GRID_HEIGHT):
+#         for x in range(GRID_WIDTH):
+#             rect = pygame.Rect(x*TILE_SIZE,y*TILE_SIZE, TILE_SIZE, TILE_SIZE)
+#             if GAME_MAP[y][x] == 1:
+#                 pygame.draw.rect(screen, YELLOW, rect)
+#             if GAME_MAP[y][x] == 2:
+#                 pygame.draw.circle(screen, WHITE , (x * TILE_SIZE + TILE_SIZE // 2, y * TILE_SIZE + TILE_SIZE // 2), 4)
+#             if GAME_MAP[y][x] == 3 and not flicker:
+#                 pygame.draw.circle(screen, CYAN, (x * TILE_SIZE + TILE_SIZE // 2, y * TILE_SIZE + TILE_SIZE // 2), 8)   
+#             if GAME_MAP[y][x] == 4:
+#                 pygame.draw.rect(screen, BLACK, rect)
+#             if GAME_MAP[y][x] == 5:
+#                 pygame.draw.rect(screen, WHITE, rect)
     
 # Put Pacman on the screen
 def put_Pacman_on_screen():
@@ -274,7 +287,7 @@ def check_position(centre_x, centre_y):
 
     return turns
 
-def move_player(player_x, player_y):
+# def move_player(player_x, player_y):
 
     if direction == 0 and turn_allowed[0]:
         player_x += player_speed
@@ -287,12 +300,6 @@ def move_player(player_x, player_y):
 
     return player_x, player_y
     
-    
-
-
-
-
-
 # run = True
 # make_ghost_home()
 # place_dots()
@@ -348,7 +355,7 @@ def move_player(player_x, player_y):
 #         for i in range(4):
 #             if direction_command == i and turn_allowed[i]:
 #                 direction = i
-pacman = Pacman(player_x, player_y, player_speed, PACMAN_IMAGES)
+pacman = Pacman(player_x, player_y, 5, PACMAN_IMAGES)
 make_ghost_home()    
 place_dots()    
 game_map = GameMap(GAME_MAP)
@@ -360,23 +367,26 @@ while running:
     # Draw the map
     game_map.draw(screen)
     pacman.update()  # Update animation counter
+    
+
+    # Check for key input
+    keys = pygame.key.get_pressed()
+    if keys[pygame.K_w] or keys[pygame.K_UP]:
+        pacman.move(2)
+    elif keys[pygame.K_a] or keys[pygame.K_LEFT]:
+        pacman.move(1)
+    elif keys[pygame.K_d] or keys[pygame.K_RIGHT]:
+        pacman.move(0)
+    elif keys[pygame.K_s] or keys[pygame.K_DOWN]:
+        pacman.move(3)
+    
+    # Move pacman based on direction command
+    pacman.draw(screen)  # Draw pacman on the screen
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
             running = False
-        if event.type == pygame.KEYDOWN:    
-            if event.key == pygame.K_RIGHT :
-                pacman.move(0)
-            if event.key == pygame.K_LEFT :
-                pacman.move(1)
-            if event.key == pygame.K_UP :
-                pacman.move(2)
-            if event.key == pygame.K_DOWN :
-                pacman.move(3)
-    # Move pacman based on direction command
-    pacman.draw(screen)  # Draw pacman on the screen
-    
     pygame.display.flip()  # Update the screen
-    pygame.time.Clock().tick(30)  # Frame rate (30 FPS)
+    pygame.time.Clock().tick(60)  # Frame rate (30 FPS)
 
 pygame.quit()
             
