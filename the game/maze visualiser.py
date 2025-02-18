@@ -65,12 +65,14 @@ def place_dots():
                     GAME_MAP[y][x] = 3
 
 # class for a tile
-class Tile:
+class Tile(pygame.sprite.Sprite):
     def __init__(self,x,y):
+        super().__init__()
         self.x = x
         self.y = y
         self.size = TILE_SIZE # It equals 30 in here
         self.type = ""
+        self.rect = pygame.Rect(self.x,self.y,self.size,self.size)
     def draw(self,surface):
         pass
 
@@ -80,8 +82,7 @@ class WallTile(Tile):
     def __init__(self,x,y):
         super().__init__(x, y)  # Call the constructor in tile class to set x, y
         self.colour = (255, 255, 0)  # Wall colour = yellow
-        self.rect = pygame.Rect(self.x,self.y,self.size, self.size)
-        self.type = "WallTile"
+        self.type = "Wall"
     
     def draw(self,surface):
         pygame.draw.rect(surface, self.colour, self.rect)
@@ -91,6 +92,7 @@ class PacdotTile(Tile):
     def __init__(self, x, y):
         super().__init__(x, y)
         self.colour = (255, 255, 255)  # Pacdot colour  = white
+        self.type = "Pacdot"
 
     # To draw a circle with radius 4
     def draw(self, surface):
@@ -100,6 +102,7 @@ class PowerdotTile(Tile):
     def __init__(self, x, y):
         super().__init__(x, y)
         self.colour = (0,255,255)  # Pacdot colour  =  cyan
+        self.type = "Power Pellet"
 
     # To draw a circle with radius 8
     def draw(self, surface):
@@ -118,23 +121,36 @@ class GhosthomeTile(Tile):
 class GameMap:
     def __init__(self, game_map):
         self.map = game_map
-        self.tiles = self.create_tiles()
+        self.tiles = pygame.sprite.Group()
+        self.walls_group = pygame.sprite.Group()  # Group for wall tiles
+        self.pacdots_group = pygame.sprite.Group()  # Group for Pac-Dots
+        self.powerdots_group = pygame.sprite.Group()  # Group for Power Pellets
+        self.ghosthomes_group = pygame.sprite.Group()  # Group for ghost home tiles
+        self.create_tiles()
     
     def create_tiles(self):
-        tiles = []
         for y, row in enumerate(self.map):
             for x, tile_type in enumerate(row):
                 if tile_type == 1:
-                    tiles.append(WallTile(x * TILE_SIZE, y * TILE_SIZE))
+                    tile = WallTile(x * TILE_SIZE, y * TILE_SIZE)
+                    self.tiles.add(tile) # .add() method comes from the sprite class
+                    self.walls_group.add(tile)
                 elif tile_type == 2:
-                    tiles.append(PacdotTile(x * TILE_SIZE, y * TILE_SIZE))
+                    tile = PacdotTile(x * TILE_SIZE, y * TILE_SIZE)
+                    self.tiles.add(tile)
+                    self.pacdots_group.add(tile)
                 elif tile_type == 3:
-                    tiles.append(PowerdotTile(x * TILE_SIZE, y * TILE_SIZE))
+                    tile = PowerdotTile(x * TILE_SIZE, y * TILE_SIZE)
+                    self.tiles.add(tile)
+                    self.powerdots_group.add(tile)
                 elif tile_type == 4:
-                    tiles.append(GhosthomeTile(x * TILE_SIZE, y * TILE_SIZE, "region" ))
+                    tile = GhosthomeTile(x * TILE_SIZE, y * TILE_SIZE, "region")
+                    self.tiles.add(tile)
+                    self.ghosthomes_group.add(tile)
                 elif tile_type == 5:
-                    tiles.append(GhosthomeTile(x * TILE_SIZE, y * TILE_SIZE, "entrance" ))
-        return tiles
+                    tile = GhosthomeTile(x * TILE_SIZE, y * TILE_SIZE, "entrance")
+                    self.tiles.add(tile)
+                    self.ghosthomes_group.add(tile)
     
     """
     PURPOSE: 
