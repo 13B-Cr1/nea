@@ -1,4 +1,3 @@
-
 """
 rect = Pygame.rect(x_coordinate, y_coordinate, width, height)
 circle = Pygame
@@ -43,8 +42,8 @@ for i in range(1,5):
     PACMAN_IMAGES.append(pygame.transform.scale(pygame.image.load(f"assets/{i}.png"),(25,25)))
 
 # Pacman position
-player_x = (30//TILE_SIZE) * TILE_SIZE + TILE_SIZE // 2
-player_y = (30//TILE_SIZE) * TILE_SIZE + TILE_SIZE // 2
+player_x = (60//TILE_SIZE) * TILE_SIZE 
+player_y = (60//TILE_SIZE) * TILE_SIZE 
 # direction = 0
 turns = [False, False,False,False]
 # direction_command = 0
@@ -71,6 +70,7 @@ class Tile:
         self.x = x
         self.y = y
         self.size = TILE_SIZE # It equals 30 in here
+        self.type = ""
     def draw(self,surface):
         pass
 
@@ -80,9 +80,11 @@ class WallTile(Tile):
     def __init__(self,x,y):
         super().__init__(x, y)  # Call the constructor in tile class to set x, y
         self.colour = (255, 255, 0)  # Wall colour = yellow
+        self.rect = pygame.Rect(self.x,self.y,self.size, self.size)
+        self.type = "WallTile"
     
     def draw(self,surface):
-        pygame.draw.rect(surface, self.colour, pygame.Rect(self.x, self.y, self.size, self.size))
+        pygame.draw.rect(surface, self.colour, self.rect)
 
 
 class PacdotTile(Tile):
@@ -152,51 +154,56 @@ class Pacman:
     def __init__(self, x, y, speed, images):
         self.x = x
         self.y = y
-        self.speed = speed
-        self.direction = 0  # 0 = right, 1 = left, 2 = up, 3 = down
+        self.speed = speed  # Use a divisor of TILE_SIZE (e.g., 5)
+        self.direction = 0  # 0=right, 1=left, 2=up, 3=down
         self.images = images
         self.counter = 0
+        self.next_direction = None  # For queued direction changes
+
+
 
     def draw(self, surface):
-        if self.direction == 0: # right direction
+        if self.direction == 0: # turns right
             surface.blit(self.images[self.counter // 5], (self.x, self.y))
-        elif self.direction == 1:
+        elif self.direction == 1: # turns left
             surface.blit(pygame.transform.flip(self.images[self.counter // 5], True, False), (self.x, self.y)) # left
-        elif self.direction == 2:
+        elif self.direction == 2: # turns up
             surface.blit(pygame.transform.rotate(self.images[self.counter // 5], 90), (self.x, self.y)) # up
-        elif self.direction == 3:
+        elif self.direction == 3: # turns down
             surface.blit(pygame.transform.rotate(self.images[self.counter // 5], 270), (self.x, self.y)) # down
     
-    # def move(self,direction):
-    #     self.direction = direction
-    #     if self.direction == 0:  # Moving right
-    #         self.x += self.speed
-    #     elif self.direction == 1:  # Moving left
-    #         self.x -= self.speed
-    #     elif self.direction == 2:  # Moving up
-    #         self.y -= self.speed
-    #     elif self.direction == 3:  # Moving down
-    #         self.y += self.speed
-        
-    #     self.x = self.x//TILE_SIZE * TILE_SIZE +TILE_SIZE// 2 
-    #     self.y = self.y//TILE_SIZE * TILE_SIZE +TILE_SIZE// 2 
-    def move(self, direction):
-        # Update direction and position based on player input
-        self.direction = direction
-        if self.direction == 0:  # right
-            self.x += self.speed
-        elif self.direction == 1:  # left
-            self.x -= self.speed
-        elif self.direction == 2:  # up
-            self.y -= self.speed
-        elif self.direction == 3:  # down
-            self.y += self.speed
 
-    def update(self):
-        # Simple update logic for the animation counter
+    def move(self, direction):
+        self.direction = direction
+        new_x,new_y = self.x,self.y
+        if self.direction == 0:  # right
+            new_x = self.x + self.speed
+        elif self.direction == 1:  # left
+            new_x = self.x - self.speed
+        elif self.direction == 2:  # up
+            new_y = self.y - self.speed
+        elif self.direction == 3:  # down
+            new_y = self.y + self.speed
+
+        grid_x = new_x // TILE_SIZE
+        grid_y = new_y //TILE_SIZE
+
+        if 0<= grid_x < GRID_WIDTH and  0 <= grid_y < GRID_HEIGHT:
+            if GAME_MAP[grid_y][grid_x] != 1:
+                self.x = new_x
+                self.y = new_y
+                
+        
+
+    def update(self): # Simple update logic for the animation counter
+    
         self.counter += 1
         if self.counter > 19:
             self.counter = 0
+    
+
+    
+
 # Draws the board using solid rectangles    
 # def draw_board():
 #     for y in range(GRID_HEIGHT):
@@ -212,181 +219,42 @@ class Pacman:
 #                 pygame.draw.rect(screen, BLACK, rect)
 #             if GAME_MAP[y][x] == 5:
 #                 pygame.draw.rect(screen, WHITE, rect)
-    
-# Put Pacman on the screen
-def put_Pacman_on_screen():
-    if direction == 0:
-        screen.blit(PACMAN_IMAGES[counter // 5], (player_x,player_y))
-    if direction == 1:
-        screen.blit(pygame.transform.flip(PACMAN_IMAGES[counter // 5], True, False),(player_x,player_y))
-    if direction == 2:
-        screen.blit(pygame.transform.rotate(PACMAN_IMAGES[counter // 5], 90), (player_x,player_y))
-    if direction == 3:
-        screen.blit(pygame.transform.rotate(PACMAN_IMAGES[counter // 5],270), (player_x,player_y))
-    
 
-def check_position(centre_x, centre_y):
-    turns = [False, False, False, False]
-    num1 = GRID_HEIGHT
-    num2 = GRID_WIDTH
-    num3 = 15
 
-    if centre_x // 30 < 32:
-        if direction == 0:
-            if GAME_MAP[centre_y // num1][(centre_x- num3) // num2] != (1 or 5):
-                turns[1] = True
-        if direction == 1:
-            if GAME_MAP[centre_y // num1][(centre_x + num3) // num2] != (1 or 5):
-                turns[0] = True
-        if direction == 2:
-            if GAME_MAP[(centre_y + num3) // num1][(centre_x) // num2] != (1 or 5):
-                turns[3] = True
 
-        if direction == 3:
-            if GAME_MAP[(centre_y- num3) // num1][(centre_x) // num2] != (1 or 5):
-                turns[2] = True
-
-        if direction == (0 or 1):
-            if 12 <= centre_x % num2 <= 18:
-                if GAME_MAP[(centre_y + num3) // num1][centre_x // num2 ] < (1 or 5):
-                    turns[3] = True
-                if GAME_MAP[(centre_y - num3) // num1][centre_x // num2 ] < (1 or 5):
-                    turns[2] = True
-
-            if 12 <= centre_x % num1 <= 18:
-                if GAME_MAP[(centre_y) // num1][centre_x // num2 ] < (1 or 5):
-                    turns[3] = True
-                if GAME_MAP[(centre_y) // num1][centre_x // num2 ] < (1 or 5):
-                    turns[2] = True
-        
-        if direction == (2 or 3):
-            if 12 <= centre_x % num2 <= 18:
-                if GAME_MAP[(centre_y + num3) // num1][centre_x // num2 ] < (1 or 5):
-                    turns[3] = True
-                if GAME_MAP[(centre_y - num3) // num1][centre_x // num2 ] < (1 or 5):
-                    turns[2] = True
-
-            if 12 <= centre_y % num1 <= 18:
-                if GAME_MAP[centre_y // num1][centre_x - num2 // num2 ] < (1 or 5):
-                    turns[1] = True
-                if GAME_MAP[centre_y // num1][centre_x + num2 // num2 ] < (1 or 5):
-                    turns[0] = True
-        
-        if direction == (0 or 1):
-            if 12 <= centre_x % num2 <= 18:
-                if GAME_MAP[(centre_y + num1) // num1][centre_x // num2 ] < (1 or 5):
-                    turns[3] = True
-                if GAME_MAP[(centre_y - num1) // num1][centre_x // num2 ] < (1 or 5):
-                    turns[2] = True
-
-            if 12 <= centre_y % num1 <= 18:
-                if GAME_MAP[centre_y // num1][centre_x - num2 // num2 ] < (1 or 5):
-                    turns[1] = True
-                if GAME_MAP[centre_y // num1][centre_x + num2 // num2 ] < (1 or 5):
-                    turns[0] = True
-
-    return turns
-
-# def move_player(player_x, player_y):
-
-    if direction == 0 and turn_allowed[0]:
-        player_x += player_speed
-    if direction == 1 and turn_allowed [1]:
-        player_x -= player_speed
-    if direction == 2 and turn_allowed[2]:
-        player_y -= player_speed
-    if direction == 3 and turn_allowed[3]:
-        player_x += player_speed
-
-    return player_x, player_y
-    
-# run = True
-# make_ghost_home()
-# place_dots()
-# while run:
-#     timer.tick(fps)
-#     if counter < 19:
-#         counter += 1
-#         if counter > 10 :
-#             flicker = False
-#     else:
-#         counter = 0
-#         flicker = True
-
-#     screen.fill(BLACK)
-#     draw_board()
-#     put_Pacman_on_screen()
-#     centre_x = player_x + 13
-#     centre_y = player_y + 13
-#     pygame.draw.circle(screen, WHITE, (centre_x, centre_y), 5)
-#     turn_allowed = check_position(centre_x,centre_y)
-#     player_x, player_y = move_player(player_x,player_y)
-
-#     pygame.display.flip()
-
-#     # options to close the game
-#     for event in pygame.event.get():
-#         if event.type == pygame.QUIT:
-#             run = False
-#         if event.type == pygame.KEYDOWN:
-#             if event.key == pygame.K_ESCAPE: # this closes the program when I press the esc
-#                 run = False
-#             if event.key == pygame.K_RIGHT :
-#                 direction_command = 0
-#             if event.key == pygame.K_LEFT :
-#                 direction_command = 1
-#             if event.key == pygame.K_UP :
-#                 direction_command = 2
-#             if event.key == pygame.K_DOWN :
-#                 direction_command = 3
-
-#         if event.type == pygame.KEYUP:
-#             if event.key == pygame.K_ESCAPE: # this closes the program when I press the esc
-#                 run = False
-#             if event.key == pygame.K_RIGHT and direction_command == 0 :
-#                 direction_command = direction
-#             if event.key == pygame.K_LEFT and direction_command :
-#                 direction_command = direction
-#             if event.key == pygame.K_UP and direction_command:
-#                 direction_command = direction
-#             if event.key == pygame.K_DOWN and direction_command :
-#                 direction_command = direction
-            
-#         for i in range(4):
-#             if direction_command == i and turn_allowed[i]:
-#                 direction = i
-pacman = Pacman(player_x, player_y, 5, PACMAN_IMAGES)
+pacman_rect= pygame.Rect(player_x,player_y, TILE_SIZE,TILE_SIZE)
+pacman = Pacman(player_x, player_y, 30, PACMAN_IMAGES)
 make_ghost_home()    
 place_dots()    
 game_map = GameMap(GAME_MAP)
 running = True
-while running:
-    screen.fill((0, 0, 0))  # Fill the screen with black
-   
-    
-    # Draw the map
-    game_map.draw(screen)
-    pacman.update()  # Update animation counter
-    
+last_direction = None
 
-    # Check for key input
-    keys = pygame.key.get_pressed()
-    if keys[pygame.K_w] or keys[pygame.K_UP]:
-        pacman.move(2)
-    elif keys[pygame.K_a] or keys[pygame.K_LEFT]:
-        pacman.move(1)
-    elif keys[pygame.K_d] or keys[pygame.K_RIGHT]:
-        pacman.move(0)
-    elif keys[pygame.K_s] or keys[pygame.K_DOWN]:
-        pacman.move(3)
+while running:
+    screen.fill(BLACK)  # Fill the screen with black
+
+    # Draw the map and update the animation counter
+    game_map.draw(screen)
+    pacman.update()
     
-    # Move pacman based on direction command
-    pacman.draw(screen)  # Draw pacman on the screen
+    # Process events
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
             running = False
+        if event.type == pygame.KEYDOWN:
+            if event.key in (pygame.K_w, pygame.K_UP):
+                last_direction = 2  # up
+            elif event.key in (pygame.K_a, pygame.K_LEFT):
+                last_direction = 1  # left
+            elif event.key in (pygame.K_d, pygame.K_RIGHT):
+                last_direction = 0  # right
+            elif event.key in (pygame.K_s, pygame.K_DOWN):
+                last_direction = 3  # down
+    if last_direction is not None:
+        pacman.move(last_direction)
+    pacman.draw(screen)  # Draw pacman on the screen
     pygame.display.flip()  # Update the screen
-    pygame.time.Clock().tick(60)  # Frame rate (30 FPS)
+    pygame.time.Clock().tick(30)  # Frame rate (60 FPS)
 
 pygame.quit()
-            
+
