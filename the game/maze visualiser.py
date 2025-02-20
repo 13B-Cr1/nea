@@ -166,8 +166,9 @@ class GameMap:
             tile.draw(surface)
 
 
-class Pacman:
+class Pacman(pygame.sprite.Sprite):
     def __init__(self, x, y, speed, images):
+        super().__init__()
         self.x = x
         self.y = y
         self.speed = speed  # Use a divisor of TILE_SIZE (e.g., 5)
