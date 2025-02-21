@@ -207,15 +207,12 @@ maze = Maze(16,  24,  """
 while maze.add_wall_obstacle(extend=True):
     pass
 
-grid = maze.maze_to_2d_array()
-#print(grid)
-# Print the generated maze
-# grid = []
-# for line in str(maze).splitlines():
+with open("maze")
+for line in maze.maze_to_string().splitlines():
+    print(line[:16] + line[:16][::-1])
 
         
-for row in grid:
-    print(row)
+
 
 
 
